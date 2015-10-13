@@ -33,8 +33,8 @@ def configure(ctx):
 
     ctx.env.DJANGO_ROOT = ctx.options.django_root
     ctx.env.DJANGO_PYTHON_PACKAGES = ['django']
-    ctx.env.DJANGO_PRODUCTION = ctx.options.production
-    if ctx.options.production:
+    ctx.env.DJANGO_PRODUCTION = ctx.options.django_production
+    if ctx.options.django_production:
         ctx.env.DJANGO_SETTINGS = 'main.prodsettings'
     else:
         ctx.env.DJANGO_SETTINGS = 'main.devsettings'
