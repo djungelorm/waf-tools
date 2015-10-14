@@ -45,7 +45,7 @@ def process_inkscape(self, source):
         self.env.EXPORT_WIDTH = self.width
     if hasattr(self, 'height'):
         self.env.EXPORT_HEIGHT = self.height
-    target = self.bld.path.get_bld().make_node(self.target)
+    target = self.path.find_or_declare(self.target)
     task = self.create_task('inkscape', src=source, tgt=target)
     if self.install_path:
         self.bld.install_files(self.install_path, task.outputs)
