@@ -1,0 +1,10 @@
+#!/bin/bash
+
+VERSION="1.8.14"
+TOOLS="$PWD/django.py,$PWD/inkscape.py"
+
+wget "https://waf.io/waf-$VERSION.tar.bz2" -O "waf-$VERSION.tar.bz2"
+tar -xf "waf-$VERSION.tar.bz2"
+(cd "waf-$VERSION"; ./waf-light --tools=$TOOLS)
+cp "waf-$VERSION/waf" ./
+rm -rf "waf-$VERSION.tar.bz2" "waf-$VERSION"
