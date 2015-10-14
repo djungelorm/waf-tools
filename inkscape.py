@@ -27,9 +27,9 @@ class inkscape(Task.Task):
 
     def run(self):
         opts = []
-        if hasattr(self.env, 'EXPORT_WIDTH'):
+        if 'EXPORT_WIDTH' in self.env:
             opts.append('--export-width=%d' % self.env.EXPORT_WIDTH)
-        if hasattr(self.env, 'EXPORT_HEIGHT'):
+        if 'EXPORT_HEIGHT' in self.env:
             opts.append('--export-height=%d' % self.env.EXPORT_HEIGHT)
         self.outputs[0].parent.mkdir()
         cmd = self.env.INKSCAPE + \
@@ -41,8 +41,10 @@ class inkscape(Task.Task):
 
 @TaskGen.extension('.svg')
 def process_inkscape(self, source):
-    self.env.EXPORT_WIDTH = getattr(self, 'width', None)
-    self.env.EXPORT_HEIGHT = getattr(self, 'height', None)
+    if hasattr(self, 'width'):
+        self.env.EXPORT_WIDTH = self.width
+    if hasattr(self, 'height'):
+        self.env.EXPORT_HEIGHT = self.height
     target = self.bld.path.get_bld().make_node(self.target)
     task = self.create_task('inkscape', src=source, tgt=target)
     if self.install_path:
