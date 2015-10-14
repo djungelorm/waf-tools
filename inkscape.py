@@ -54,9 +54,10 @@ class inkscape(Task.Task):
 
 @TaskGen.extension('.svg')
 def process_inkscape(self, source):
-    target = self.path.find_or_declare(self.target)
+    if isinstance(self.target, str):
+        target = self.path.find_or_declare(self.target)
+    else:
+        target = self.target
     task = self.create_task('inkscape', src=source, tgt=target)
     task.width = getattr(self, 'width', None)
     task.height = getattr(self, 'height', None)
-    if self.install_path:
-        self.bld.install_files(self.install_path, task.outputs)
