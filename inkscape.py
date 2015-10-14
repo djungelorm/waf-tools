@@ -23,29 +23,40 @@ def configure(ctx):
 class inkscape(Task.Task):
     shell = True
     color = 'BLUE'
-    vars = ['EXPORT_WIDTH', 'EXPORT_HEIGHT']
 
     def run(self):
         opts = []
-        if 'EXPORT_WIDTH' in self.env:
-            opts.append('--export-width=%d' % self.env.EXPORT_WIDTH)
-        if 'EXPORT_HEIGHT' in self.env:
-            opts.append('--export-height=%d' % self.env.EXPORT_HEIGHT)
-        self.outputs[0].parent.mkdir()
+        if self.width:
+            opts.append('--export-width=%d' % self.width)
+        if self.height:
+            opts.append('--export-height=%d' % self.height)
         cmd = self.env.INKSCAPE + \
               ['--export-%s=%s' % (self.outputs[0].suffix()[1:], self.outputs[0].abspath()),
                self.inputs[0].abspath()] + opts
+        self.outputs[0].parent.mkdir()
         out = self.generator.bld.cmd_and_log(cmd, output=waflib.Context.STDOUT, quiet=waflib.Context.BOTH)
         if Logs.verbose > 2:
             Logs.info(out)
 
+    def __str__(self):
+        node = self.inputs[0]
+        src = node.path_from(node.ctx.launch_node())
+        node = self.outputs[0]
+        tgt = node.path_from(node.ctx.launch_node())
+        dimensions = ''
+        if self.width and self.height:
+            dimensions = ' (width: %d px, height: %d px)' % (self.width, self.height)
+        elif self.width:
+            dimensions = ' (width: %d px)' % self.width
+        elif self.height:
+            dimensions = ' (height: %d px)' % self.height
+        return '%s -> %s%s' % (src, tgt, dimensions)
+
 @TaskGen.extension('.svg')
 def process_inkscape(self, source):
-    if hasattr(self, 'width'):
-        self.env.EXPORT_WIDTH = self.width
-    if hasattr(self, 'height'):
-        self.env.EXPORT_HEIGHT = self.height
     target = self.path.find_or_declare(self.target)
     task = self.create_task('inkscape', src=source, tgt=target)
+    task.width = getattr(self, 'width', None)
+    task.height = getattr(self, 'height', None)
     if self.install_path:
         self.bld.install_files(self.install_path, task.outputs)
