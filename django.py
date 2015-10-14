@@ -44,7 +44,7 @@ def configure(ctx):
     ctx.env.DJANGO_PRODUCTION = ctx.options.django_production
 
     if 'DJANGO_PRODUCTION_SETTINGS' not in ctx.env:
-        ctx.env.DJANGO_PRODUCTION_SETTINGS = 'main.devsettings'
+        ctx.env.DJANGO_PRODUCTION_SETTINGS = 'main.settings'
 
     if 'DJANGO_DEVELOPMENT_SETTINGS' not in ctx.env:
         ctx.env.DJANGO_DEVELOPMENT_SETTINGS = 'main.devsettings'
