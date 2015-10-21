@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os
+import random
 import subprocess
 from waflib import Context, Logs
 from waflib.Build import BuildContext
@@ -21,6 +22,8 @@ Example:
 
     def build(ctx):
         ctx.load('django')
+
+        ctx(rule=ctx.tools('django').secret_key, target='secret-key.txt')
 
     def runserver(ctx):
         ctx.load('django')
@@ -122,6 +125,17 @@ def build(ctx):
 
     ctx.install_files('${PREFIX}', root.ant_glob('**/*(.py|.html|.css|.js)'), cwd=root, relative_trick=True)
 
+def _generate_secret_key():
+    length = 50
+    chars = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)'
+    return ''.join(random.choice(chars) for i in range(length))
+
+def secret_key(task):
+    tgt = task.outputs[0].abspath()
+    with open(tgt, 'w') as f:
+        f.write(_generate_secret_key() + '\n')
+    return 0
+
 class RunServerContext(BuildContext):
     cmd = 'runserver'
     fun = 'runserver'
@@ -132,3 +146,13 @@ def runserver(ctx):
     Logs.info('Running server')
     cmd = ('env/bin/python', 'manage.py', 'runserver', '--settings', ctx.env.DJANGO_SETTINGS)
     subprocess.Popen(cmd, cwd=ctx.env.PREFIX).wait()
+
+def sorl_clear_thumbnails(ctx):
+    Logs.info('Clearing the thumbnail cache')
+    ctx.exec_command(
+        'env/bin/python manage.py thumbnail clear --settings %s' % ctx.env.DJANGO_SETTINGS,
+        cwd=ctx.env.PREFIX)
+    import shutil, os.path
+    cache_dir = os.path.join(ctx.env.PREFIX, 'media', 'cache')
+    if os.path.exists(cache_dir):
+        shutil.rmtree(cache_dir)
