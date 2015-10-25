@@ -147,6 +147,24 @@ def runserver(ctx):
     cmd = ('env/bin/python', 'manage.py', 'runserver', '--settings', ctx.env.DJANGO_SETTINGS)
     subprocess.Popen(cmd, cwd=ctx.env.PREFIX).wait()
 
+class DumpDataContext(BuildContext):
+    cmd = 'dumpdata'
+    fun = 'dumpdata'
+
+def dumpdata(ctx):
+    if 'DJANGO_DATA_DIR' not in ctx.env:
+        ctx.env.DJANGO_DATA_DIR = os.path.join(ctx.top_dir, 'data')
+    for model in ctx.env.DJANGO_DUMPDATA_MODELS:
+        path = os.path.join(ctx.env.DJANGO_DATA_DIR, model+'.json')
+        Logs.info('%sDump data: %s%s -> %s' % (
+            Logs.get_color('NORMAL'),
+            Logs.get_color('BLUE'),
+            model,
+            path))
+        ctx.exec_command(
+            'env/bin/python manage.py dumpdata %s --indent=2 --settings %s > %s' % (model, ctx.env.DJANGO_SETTINGS, path),
+            cwd=ctx.env.PREFIX)
+
 def sorl_clear_thumbnails(ctx):
     Logs.info('Clearing the thumbnail cache')
     ctx.exec_command(
