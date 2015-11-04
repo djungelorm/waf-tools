@@ -1,6 +1,6 @@
 VERSION = "1.8.14"
-TOOLS = django.py inkscape.py
-TOOLS_WAF = "$(PWD)/django.py,$(PWD)/inkscape.py"
+TOOLS = django.py inkscape.py favicon.py
+TOOLS_WAF = "$(PWD)/django.py,$(PWD)/inkscape.py,$(PWD)/favicon.py"
 
 .PHONY = all
 
